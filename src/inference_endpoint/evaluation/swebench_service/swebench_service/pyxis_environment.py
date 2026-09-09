@@ -178,7 +178,9 @@ def run_srun_step(
         if status == f"finished:{result.returncode}":
             return result
 
-        output = (result.stdout or "").strip()
+        output = "\n".join(
+            stream for stream in (result.stdout, result.stderr) if stream
+        ).strip()
         retryable = _is_retryable_prelaunch_failure(status, output)
         if retryable and attempt < _SRUN_MAX_ATTEMPTS:
             delay_s = min(2**attempt, 16) + random.uniform(0.0, 1.0)
